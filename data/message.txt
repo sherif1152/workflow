@@ -1,2 +1,2 @@
 Hello from the repository!
-This file is being read in GitHub Actions.
+

@@ -24,7 +24,9 @@ jobs:
         run: |
           git fetch origin
           git checkout -b auto/update-message
-          git diff main --quiet data/message.txt || echo "changed=true" >> $GITHUB_OUTPUT
+          # git diff main --quiet data/message.txt || echo "changed=true" >> $GITHUB_OUTPUT
+          git diff-tree --no-commit-id --name-only -r HEAD | grep -q "^data/message.txt$" && echo "changed=true" >> $GITHUB_OUTPUT
+
 
       - name: 📤 Commit if changed
         if: steps.check_diff.outputs.changed == 'true'
