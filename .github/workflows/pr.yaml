@@ -1,9 +1,7 @@
-name: Auto PR on Manual File Change
+name: Auto PR on message.txt Change
 
 on:
   push:
-    branches: [main]
-  pull_request:
     branches: [main]
 
 jobs:
@@ -19,27 +17,26 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 🔍 Fetch all branches 
+      - name: 🔍 Check if data/message.txt was changed
+        id: check_file
         run: |
-          git diff-tree --no-commit-id --name-only -r HEAD
+          git fetch origin main
+          changed=$(git diff-tree --no-commit-id --name-only -r HEAD | grep -c "^data/message.txt$" || true)
+          if [ "$changed" -eq 1 ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No change in data/message.txt"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: 🧪 Check for file change
-        id: check_diff
+      - name: 📤 Commit to new branch
+        if: steps.check_file.outputs.changed == 'true'
         run: |
-          git fetch origin
           git checkout -b auto/update-message
-          # git diff main --quiet data/message.txt || echo "changed=true" >> $GITHUB_OUTPUT
-          git diff-tree --no-commit-id --name-only -r HEAD | grep -q "^data/message.txt$" && echo "changed=true" >> $GITHUB_OUTPUT
-
-
-      - name: 📤 Commit if changed
-        if: steps.check_diff.outputs.changed == 'true'
-        run: |
-          git add data/message.txt
-          git commit -m "📝 Auto update message.txt"
+          git push origin auto/update-message
 
       - name: 🚀 Create Pull Request
-        if: steps.check_diff.outputs.changed == 'true'
+        if: steps.check_file.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.PAT_TOKEN }}
