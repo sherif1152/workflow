@@ -1,0 +1,37 @@
+name: Auto PR on File Change
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  auto-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🛠️ Modify the file (simulate a change)
+        run: |
+          echo "Updated on $(date)" >> data/message.txt
+
+      - name: ⚙️ Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 📤 Commit changes if any
+        run: |
+          git add data/message.txt
+          git diff --cached --quiet || git commit -m "📝 Auto update message.txt"
+
+      - name: 🚀 Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "📝 Auto update message.txt"
+          branch: auto/update-message
+          title: "🔄 Update message.txt"
+          body: "This PR was created automatically by GitHub Actions"
+          base: main
