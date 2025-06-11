@@ -13,10 +13,6 @@ jobs:
       - name: ✅ Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🛠️ Modify the file (simulate a change)
-        run: |
-          echo "Updated on $(date)" >> data/message.txt
-
       - name: ⚙️ Configure Git
         run: |
           git config user.name "github-actions[bot]"
