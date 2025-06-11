@@ -1,11 +1,23 @@
-name: Hello World
+name: Read File Example
 
 on: push
 
 jobs:
-  say-hello:
+  read-file:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Say Hello
-        run: echo "Hello, GitHub Actions!"
+      - name: ✅ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 📂 Read and print message.txt
+        run: cat data/message.txt
+
+      - name: 📥 Read file into variable
+        id: read_file
+        run: |
+          content=$(cat data/message.txt)
+          echo "CONTENT=$content" >> $GITHUB_OUTPUT
+
+      - name: 📤 Print content from variable
+        run: echo "File content is: ${{ steps.read_file.outputs.CONTENT }}"
