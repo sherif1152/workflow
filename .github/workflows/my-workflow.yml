@@ -20,4 +20,5 @@ jobs:
           echo "CONTENT=$content" >> "$GITHUB_OUTPUT"
 
       - name: 📤 Print content from variable
-        run: echo "File content is: ${{ steps.read_file.outputs.CONTENT }}"
+        run: |
+          echo "File content is: ${{ steps.read_file.outputs.CONTENT }}"
