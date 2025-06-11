@@ -1,4 +1,4 @@
-name: Auto PR on File Change
+name: Auto PR on Manual File Change
 
 on:
   push:
@@ -18,12 +18,21 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: 📤 Commit changes if any
+      - name: 🧪 Check for file change
+        id: check_diff
+        run: |
+          git fetch origin
+          git checkout -b auto/update-message
+          git diff origin/main --quiet data/message.txt || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: 📤 Commit if changed
+        if: steps.check_diff.outputs.changed == 'true'
         run: |
           git add data/message.txt
-          git diff --cached --quiet || git commit -m "📝 Auto update message.txt"
+          git commit -m "📝 Auto update message.txt"
 
       - name: 🚀 Create Pull Request
+        if: steps.check_diff.outputs.changed == 'true'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
