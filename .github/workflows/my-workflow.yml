@@ -16,8 +16,11 @@ jobs:
       - name: 📥 Read file into variable
         id: read_file
         run: |
-          content=$(cat data/message.txt)
-          echo "CONTENT=$content" >> "$GITHUB_OUTPUT"
+          {
+            echo "CONTENT<<EOF"
+            cat data/message.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: 📤 Print content from variable
         run: |
