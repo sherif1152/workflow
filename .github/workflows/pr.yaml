@@ -19,6 +19,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+      - name: 🔍 Fetch all branches 
+        run: |
+          git diff-tree --no-commit-id --name-only -r HEAD
+
       - name: 🧪 Check for file change
         id: check_diff
         run: |
