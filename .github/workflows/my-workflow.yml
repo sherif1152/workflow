@@ -17,7 +17,7 @@ jobs:
         id: read_file
         run: |
           content=$(cat data/message.txt)
-          echo "CONTENT=$content" >> $GITHUB_OUTPUT
+          echo "CONTENT=$content" >> "$GITHUB_OUTPUT"
 
       - name: 📤 Print content from variable
         run: echo "File content is: ${{ steps.read_file.outputs.CONTENT }}"
