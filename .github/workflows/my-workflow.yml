@@ -10,6 +10,9 @@ jobs:
       - name: ✅ Checkout repository
         uses: actions/checkout@v3
 
+      - name: start hello
+        run: echo " Hello Sherif ..."
+
       - name: 📂 Read and print message.txt
         run: cat data/message.txt
 
