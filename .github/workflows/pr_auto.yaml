@@ -26,15 +26,17 @@ jobs:
           changed=$(git diff --name-only $GITHUB_SHA^ $GITHUB_SHA | grep -c "^data/message.txt$" || true)
           if [ "$changed" -eq 1 ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "data/message.txt was modified in this commit."
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data/message.txt was not modified in this commit."
           fi
 
       - name: 🛠️ Revert data/message.txt to previous commit
         if: steps.check_file.outputs.changed == 'true'
         run: |
           git checkout -b auto/revert-message
-          git checkout $GITHUB_SHA^ -- data/message.txt
+          git checkout origin/main -- data/message.txt
           git add data/message.txt
           git commit -m "🚫 Revert unauthorized change to message.txt"
           git push origin auto/revert-message --force
