@@ -58,36 +58,36 @@ jobs:
         if: steps.check_file.outputs.changed == 'true'
         run: |
           # Save the new diff temporarily
-          cp logs/message_diff.txt temp_diff.txt
+          cp logs/message_diff.txt temp_diff.txt || cp /dev/null temp_diff.txt
 
-          # Try to fetch the branch
+          # Remove to avoid conflict with checkout
+          rm -f logs/message_diff.txt
+
+          # Fetch branch info
           git fetch origin auto/log-message-changes || true
-
-          # Check if branch exists remotely
           BRANCH_EXISTS=$(git ls-remote --heads origin auto/log-message-changes | wc -l)
 
           if [ "$BRANCH_EXISTS" -eq 1 ]; then
             echo "✅ Branch exists. Checking it out..."
             git checkout -b auto/log-message-changes origin/auto/log-message-changes
-
-            # Make sure logs directory exists
-            mkdir -p logs
-
-            # If file exists, append. Otherwise, create new.
-            if [ -f logs/message_diff.txt ]; then
-              echo "📄 Appending diff to existing log file..."
-              cat temp_diff.txt >> logs/message_diff.txt
-            else
-              echo "🆕 Creating new log file..."
-              mv temp_diff.txt logs/message_diff.txt
-            fi
           else
-            echo "🚀 Branch doesn't exist. Creating new branch..."
+            echo "🚀 Branch doesn't exist. Creating new..."
             git checkout -b auto/log-message-changes
-            mkdir -p logs
+          fi
+
+          # Ensure logs directory exists
+          mkdir -p logs
+
+          # If file exists, append to it, else create new
+          if [ -f logs/message_diff.txt ]; then
+            echo "📄 Appending to existing logs/message_diff.txt"
+            cat temp_diff.txt >> logs/message_diff.txt
+          else
+            echo "🆕 Creating new logs/message_diff.txt"
             mv temp_diff.txt logs/message_diff.txt
           fi
 
+          # Commit and push
           git add logs/message_diff.txt
           git commit -m "📝 Append diff log for $GITHUB_SHA"
           git push origin auto/log-message-changes --force
