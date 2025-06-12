@@ -1,0 +1,23 @@
+name: Show Git Diff
+
+on: [push]
+
+jobs:
+  show-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔍 Get diff between current and previous commit
+        run: |
+          echo "🔁 Comparing $GITHUB_SHA with previous commit..."
+          echo ""
+
+          echo "📁 Files changed:"
+          git diff --name-status $GITHUB_SHA^ $GITHUB_SHA
+
+          echo ""
+          echo "📄 Detailed changes:"
+          git diff $GITHUB_SHA^ $GITHUB_SHA
