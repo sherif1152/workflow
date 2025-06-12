@@ -18,7 +18,15 @@ jobs:
           echo ""
 
           echo "📁 Files changed:"
-          git diff --name-status $GITHUB_SHA^ $GITHUB_SHA
+          git diff --name-status $GITHUB_SHA^ $GITHUB_SHA | while read status file; do
+            case $status in
+              M) echo "📝 Modified: $file" ;;
+              A) echo "➕ Added: $file" ;;
+              D) echo "❌ Deleted: $file" ;;
+              *) echo "🔁 Changed ($status): $file" ;;
+            esac
+          done
+
 
           echo ""
           echo "📄 Detailed changes:"

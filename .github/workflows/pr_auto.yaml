@@ -1,11 +1,11 @@
-name: Auto PR on message.txt Change
+name: Auto Revert Unauthorized Changes to message.txt
 
 on:
   push:
     branches: [main]
 
 jobs:
-  auto-pr:
+  auto-revert:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,18 +22,19 @@ jobs:
       - name: 🔍 Check if data/message.txt was changed
         id: check_file
         run: |
-          changed=$(git --name-status $GITHUB_SHA^ $GITHUB_SHA | grep -c "^data/message.txt$" || true)
+          echo "🔁 Comparing $GITHUB_SHA with previous commit..."
+          changed=$(git diff --name-only $GITHUB_SHA^ $GITHUB_SHA | grep -c "^data/message.txt$" || true)
           if [ "$changed" -eq 1 ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
             echo "changed=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: 🛠️ Revert data/message.txt to main version
+      - name: 🛠️ Revert data/message.txt to previous commit
         if: steps.check_file.outputs.changed == 'true'
         run: |
           git checkout -b auto/revert-message
-          git checkout origin/main -- data/message.txt
+          git checkout $GITHUB_SHA^ -- data/message.txt
           git add data/message.txt
           git commit -m "🚫 Revert unauthorized change to message.txt"
           git push origin auto/revert-message --force
@@ -48,5 +49,5 @@ jobs:
           title: "🔄 Revert change to message.txt"
           body: |
             ❌ Unauthorized change was made to `data/message.txt`.
-            This PR restores the file to its last known good state from `main`.
+            This PR restores the file to its previous state before the last push.
           base: main
