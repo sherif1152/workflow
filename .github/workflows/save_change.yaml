@@ -32,12 +32,10 @@ jobs:
             echo "data/message.txt was not modified in this commit."
           fi
 
-
       - name: 📄 Append diff to logs/message_diff.txt
         if: steps.check_file.outputs.changed == 'true'
         run: |
           mkdir -p logs
-          
           AUTHOR=$(git log -1 --pretty=format:'%an')
           DATE=$(date +"%Y-%m-%d %H:%M:%S")
           COMMIT=$GITHUB_SHA
@@ -56,23 +54,13 @@ jobs:
 
           echo -e "\n----------------------------------------\n" >> logs/message_diff.txt
 
-
-      - name: 🚀 Commit and push diff to new branch
+      - name: 🚀 Commit and push diff to existing branch
         if: steps.check_file.outputs.changed == 'true'
         run: |
-          git checkout -b auto/log-message-changes
-          git add logs/message_diff.txt
-          git commit -m "📝 Log changes to message.txt"
-          git push origin auto/log-message-changes --force
+          git fetch origin auto/log-message-changes || true
+          git checkout auto/log-message-changes || git checkout -b auto/log-message-changes
+          git merge origin/auto/log-message-changes || true
 
-    #   - name: 🔀 Create Pull Request for log
-    #     if: steps.check_file.outputs.changed == 'true'
-    #     uses: peter-evans/create-pull-request@v6
-    #     with:
-    #       token: ${{ secrets.PAT_TOKEN }}
-    #       commit-message: "📝 Log changes to message.txt"
-    #       branch: auto/log-message-changes
-    #       title: "🧾 Log changes in message.txt"
-    #       body: |
-    #         This PR contains a log of recent changes in `data/message.txt` pushed to `main`.
-    #       base: main
+          git add logs/message_diff.txt
+          git commit -m "📝 Append diff log for $GITHUB_SHA"
+          git push origin auto/log-message-changes --force
