@@ -1,6 +1,8 @@
 name: Show Git Diff
 
-on: [push]
+on:
+  push:
+    branches: [main]
 
 jobs:
   show-diff:
@@ -27,7 +29,19 @@ jobs:
             esac
           done
 
-
           echo ""
           echo "📄 Detailed changes:"
           git diff $GITHUB_SHA^ $GITHUB_SHA
+
+      - name: 🔍 Check if data/message.txt was changed
+        id: check_file
+        run: |
+          echo "🔁 Comparing $GITHUB_SHA with previous commit..."
+          changed=$(git diff --name-only $GITHUB_SHA^ $GITHUB_SHA | grep -c "^data/message.txt$" || true)
+          if [ "$changed" -eq 1 ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "data/message.txt was modified in this commit."
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data/message.txt was not modified in this commit."
+          fi
