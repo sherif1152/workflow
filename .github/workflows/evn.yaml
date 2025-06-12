@@ -1,10 +1,12 @@
 name: Greeting on variable day
 
 on:
-  workflow_dispatch
-
-env:
-  DAY_OF_WEEK: Monday
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "What's the day of the week?"
+        required: true
+        default: Monday
 
 jobs:
   greeting_job:
@@ -12,7 +14,7 @@ jobs:
     env:
       Greeting: Hello
     steps:
-      - name: "Say Hello Mona it's Monday"
-        run: echo "$Greeting $First_Name. Today is $DAY_OF_WEEK!"
+      - name: "Say Hello Sherif on selected day"
+        run: echo "$Greeting $First_Name. Today is ${{ inputs.day }}!"
         env:
-          First_Name: Mona
+          First_Name: Sherif
