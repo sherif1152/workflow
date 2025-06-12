@@ -32,19 +32,29 @@ jobs:
             echo "data/message.txt was not modified in this commit."
           fi
 
-      - name: 📄 Save diff to logs/message_diff.txt
+
+      - name: 📄 Append diff to logs/message_diff.txt
         if: steps.check_file.outputs.changed == 'true'
         run: |
           mkdir -p logs
-          echo "📄 Diff for data/message.txt (commit $GITHUB_SHA):" > logs/message_diff.txt
+          AUTHOR=$(git log -1 --pretty=format:'%an')
+          DATE=$(date +"%Y-%m-%d %H:%M:%S")
+          COMMIT=$GITHUB_SHA
+
+          echo "## 🔧 Change by $AUTHOR on $DATE" >> logs/message_diff.txt
+          echo "📄 Diff for data/message.txt (commit $COMMIT):" >> logs/message_diff.txt
+
           git diff $GITHUB_SHA^ $GITHUB_SHA -- data/message.txt | \
-            grep -E '^\+[^+]|^\-[^-]' | while read line; do
+              grep -E '^\+[^+]|^\-[^-]' | while read line; do
               if [[ "$line" =~ ^\+ ]]; then
-                echo "➕ ${line:1}" >> logs/message_diff.txt
+                  echo "➕ ${line:1}" >> logs/message_diff.txt
               elif [[ "$line" =~ ^\- ]]; then
-                echo "❌ ${line:1}" >> logs/message_diff.txt
+                  echo "❌ ${line:1}" >> logs/message_diff.txt
               fi
-            done
+              done
+
+          echo -e "\n----------------------------------------\n" >> logs/message_diff.txt
+
 
       - name: 🚀 Commit and push diff to new branch
         if: steps.check_file.outputs.changed == 'true'
