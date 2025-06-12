@@ -22,7 +22,7 @@ jobs:
       - name: 🔍 Check if data/message.txt was changed
         id: check_file
         run: |
-          changed=$(git diff --name-only HEAD^ HEAD | grep -c "^data/message.txt$" || true)
+          changed=$(git --name-status $GITHUB_SHA^ $GITHUB_SHA | grep -c "^data/message.txt$" || true)
           if [ "$changed" -eq 1 ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
           else
