@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: ✅ Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
 
       - name: 🔍 Get diff between current and previous commit
         run: |
