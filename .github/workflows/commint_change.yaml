@@ -45,3 +45,18 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "data/message.txt was not modified in this commit."
           fi
+      - name: 📄 Show changes in data/message.txt
+        run: |
+          echo "🔍 Changes in data/message.txt:"
+          echo ""
+
+          git diff $GITHUB_SHA^ $GITHUB_SHA -- data/message.txt | while read line; do
+            case "$line" in
+              +[^+]*)
+                echo "➕ ${line:1}"
+                ;;
+              -[^-]*)
+                echo "❌ ${line:1}"
+                ;;
+            esac
+          done
