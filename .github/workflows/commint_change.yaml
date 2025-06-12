@@ -45,6 +45,7 @@ jobs:
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "data/message.txt was not modified in this commit."
           fi
+          
       - name: 📄 Show changes in data/message.txt
         run: |
           echo "🔍 Changes in data/message.txt:"

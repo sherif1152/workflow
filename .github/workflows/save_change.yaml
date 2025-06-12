@@ -1,0 +1,67 @@
+name: 🔍 Save Changes in message.txt
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  save-message-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: ⚙️ Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: 🔍 Check if data/message.txt was changed
+        id: check_file
+        run: |
+          echo "🔁 Checking diff for data/message.txt..."
+          changed=$(git diff --name-only $GITHUB_SHA^ $GITHUB_SHA | grep -c "^data/message.txt$" || true)
+          if [ "$changed" -eq 1 ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "data/message.txt was modified in this commit."
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "data/message.txt was not modified in this commit."
+          fi
+
+      - name: 📄 Save diff to logs/message_diff.txt
+        if: steps.check_file.outputs.changed == 'true'
+        run: |
+          mkdir -p logs
+          echo "📄 Diff for data/message.txt (commit $GITHUB_SHA):" > logs/message_diff.txt
+          git diff $GITHUB_SHA^ $GITHUB_SHA -- data/message.txt | \
+            grep -E '^\+[^+]|^\-[^-]' | while read line; do
+              if [[ "$line" =~ ^\+ ]]; then
+                echo "➕ ${line:1}" >> logs/message_diff.txt
+              elif [[ "$line" =~ ^\- ]]; then
+                echo "❌ ${line:1}" >> logs/message_diff.txt
+              fi
+            done
+
+      - name: 🚀 Commit and push diff to new branch
+        if: steps.check_file.outputs.changed == 'true'
+        run: |
+          git checkout -b auto/log-message-changes
+          git add logs/message_diff.txt
+          git commit -m "📝 Log changes to message.txt"
+          git push origin auto/log-message-changes --force
+
+    #   - name: 🔀 Create Pull Request for log
+    #     if: steps.check_file.outputs.changed == 'true'
+    #     uses: peter-evans/create-pull-request@v6
+    #     with:
+    #       token: ${{ secrets.PAT_TOKEN }}
+    #       commit-message: "📝 Log changes to message.txt"
+    #       branch: auto/log-message-changes
+    #       title: "🧾 Log changes in message.txt"
+    #       body: |
+    #         This PR contains a log of recent changes in `data/message.txt` pushed to `main`.
+    #       base: main
