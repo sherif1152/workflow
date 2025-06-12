@@ -36,7 +36,7 @@ jobs:
         if: steps.check_file.outputs.changed == 'true'
         run: |
           git checkout -b auto/revert-message
-          git checkout origin/main -- data/message.txt
+          git restore --source=HEAD~1 data/message.txt
           git add data/message.txt
           git commit -m "🚫 Revert unauthorized change to message.txt"
           git push origin auto/revert-message --force
