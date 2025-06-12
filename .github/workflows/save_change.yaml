@@ -51,8 +51,12 @@ jobs:
               echo "❌ ${line:1}" >> logs/message_diff.txt
             fi
           done
+          # Append current file content after the diff
+          echo -e "\n📦 Final content of data/message.txt after commit $COMMIT:\n" >> logs/message_diff.txt
+          cat data/message.txt >> logs/message_diff.txt
 
           echo -e "\n----------------------------------------\n" >> logs/message_diff.txt
+
 
       - name: 🚀 Commit and push diff to log branch
         if: steps.check_file.outputs.changed == 'true'
