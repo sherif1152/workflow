@@ -37,6 +37,7 @@ jobs:
         if: steps.check_file.outputs.changed == 'true'
         run: |
           mkdir -p logs
+          
           AUTHOR=$(git log -1 --pretty=format:'%an')
           DATE=$(date +"%Y-%m-%d %H:%M:%S")
           COMMIT=$GITHUB_SHA
@@ -45,13 +46,13 @@ jobs:
           echo "📄 Diff for data/message.txt (commit $COMMIT):" >> logs/message_diff.txt
 
           git diff $GITHUB_SHA^ $GITHUB_SHA -- data/message.txt | \
-              grep -E '^\+[^+]|^\-[^-]' | while read line; do
-              if [[ "$line" =~ ^\+ ]]; then
-                  echo "➕ ${line:1}" >> logs/message_diff.txt
-              elif [[ "$line" =~ ^\- ]]; then
-                  echo "❌ ${line:1}" >> logs/message_diff.txt
-              fi
-              done
+          grep -E '^\+[^+]|^\-[^-]' | while read line; do
+            if [[ "$line" =~ ^\+ ]]; then
+              echo "➕ ${line:1}" >> logs/message_diff.txt
+            elif [[ "$line" =~ ^\- ]]; then
+              echo "❌ ${line:1}" >> logs/message_diff.txt
+            fi
+          done
 
           echo -e "\n----------------------------------------\n" >> logs/message_diff.txt
 
