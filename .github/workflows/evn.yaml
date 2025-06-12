@@ -15,6 +15,7 @@ jobs:
       Greeting: Hello
     steps:
       - name: "Say Hello Sherif on selected day"
+        if : ${{ inputs.day == 'Friday' }}
         run: echo "$Greeting $First_Name. Today is ${{ inputs.day }}!"
         env:
           First_Name: Sherif
