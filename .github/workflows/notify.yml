@@ -6,7 +6,7 @@ on:
 
 jobs:
   notify:
-    if: contains(github.event.release.tag_name, '-production')
+    #if: contains(github.event.release.tag_name, '-production')
     runs-on: ubuntu-latest
     steps:
       - name: Send repository_dispatch to Repo A
